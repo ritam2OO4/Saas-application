@@ -1,6 +1,7 @@
+import NewCompanion from '@/components/NewCompanion';
  const NewCampanion = () => {
     return (
-        <>New companion</>
+        <NewCompanion/>
     );
 };
 
