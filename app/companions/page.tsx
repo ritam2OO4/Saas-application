@@ -1,7 +1,7 @@
-const page = () => {
+const CompanionLibrary = () => {
     return (
-        <>Campanions Libranry</>
+        <> </>
     );
 };
 
-export default page;
+export default CompanionLibrary;

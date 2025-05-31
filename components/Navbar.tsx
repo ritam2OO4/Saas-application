@@ -5,7 +5,6 @@ import Image from "next/image";
 import NavItems from "@/components/NavItems";
 import {
     SignInButton,
-    SignUpButton,
     SignedIn,
     SignedOut,
     UserButton,
@@ -32,9 +31,7 @@ const Navbar = () => {
                     <SignInButton mode="modal">
                         <button className="text-sm font-medium">Sign In</button>
                     </SignInButton>
-                    <SignUpButton mode="modal">
-                        <button className="text-sm font-medium">Sign Up</button>
-                    </SignUpButton>
+
                 </SignedOut>
 
                 <SignedIn>

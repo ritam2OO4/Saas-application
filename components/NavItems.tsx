@@ -14,7 +14,6 @@ const navArray = [
 ]
 const NavItems = () => {
    const pathName = usePathname();
-   console.log(pathName);
     return (
         <>
             <nav className="flex items-center gap-4">

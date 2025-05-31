@@ -1,22 +1,21 @@
 "use client"
 import {z} from "zod"
 import {useForm} from "react-hook-form"
-
 import { Button } from "@/components/ui/button"
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
-    FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {zodResolver} from "@hookform/resolvers/zod"
 import {subjects} from "@/constants";
 import {Textarea} from "@/components/ui/textarea";
+import {createCompanion} from "@/lib/actions/companion.actions";
+import {redirect} from "next/navigation";
 
 
 const formSchema = z.object({
@@ -43,10 +42,17 @@ const formSchema = z.object({
          },
      })
 // 2. Define a submit handler.
-     const onSubmit=(values: z.infer<typeof formSchema>)=> {
+     const onSubmit= async (values: z.infer<typeof formSchema>)=> {
          // Do something with the form values.
          // ✅ This will be type-safe and validated.
-         console.log(values)
+           const companion = await createCompanion(values)
+         if(companion) {
+             redirect(`/companions/${companion.id}`)
+         }
+         else{
+             console.log("Something went wrong!!")
+             redirect("/")
+         }
         form.reset();
      }
          return (
