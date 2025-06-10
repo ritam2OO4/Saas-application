@@ -2,7 +2,6 @@
 import {createSupabaseClient} from "@/lib/supabase";
 import {auth} from "@clerk/nextjs/server"
 
-
 export const createCompanion  = async(formData : CreateCompanion)=>{
 const {userId:author}=await auth();
 const supabase =  createSupabaseClient();
@@ -35,3 +34,26 @@ export const getAllCompanions = async ({ limit = 10, page = 1, subject, topic }:
 
     return companions;
 };
+
+
+export const getCompanion = async(id:string)=>{
+    const supabase = createSupabaseClient()
+    const {data,error}=await supabase.from("companions").select().eq("id",id)
+
+    if(error) return console.log(error)
+    return data[0]
+}
+
+export const addToSessionHistory = async (companionId: string) => {
+    const { userId } = await auth();
+    const supabase = createSupabaseClient();
+    const { data, error } = await supabase.from('session_history')
+        .insert({
+            companion_id: companionId,
+            user_id: userId,
+        })
+
+    if(error) throw new Error(error.message);
+
+    return data;
+}
