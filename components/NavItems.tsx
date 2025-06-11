@@ -11,6 +11,11 @@ const navArray = [
         label: "Companions",
         href: "/companions",
     },
+    {
+        label:"My Journey",
+        href:"/my-journey"
+
+    }
 ]
 const NavItems = () => {
    const pathName = usePathname();

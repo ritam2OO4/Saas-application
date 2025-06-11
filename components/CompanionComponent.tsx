@@ -5,6 +5,7 @@ import {vapi} from "@/lib/vapi.sdk";
 import Lottie, {LottieRefCurrentProps} from "lottie-react";
 import soundwaves from '@/constants/soundwaves.json'
 import Image from "next/image"
+import {addToSessionHistory} from "@/lib/actions/companion.actions";
 // import {addToSessionHistory} from "@/lib/actions/companion.actions";
 
 
@@ -36,7 +37,10 @@ export const CompanionComponet = ({companionId,userName,userImage,subject,topic,
     useEffect(()=>{
         const onCallStart = ()=> setCallStatus(CallStatus.ACTIVE)
 
-        const onCallEnd = ()=> setCallStatus(CallStatus.FINISHED)
+        const onCallEnd = ()=> {
+            setCallStatus(CallStatus.FINISHED)
+            addToSessionHistory(companionId)
+        }
 
         const onSpeechStart = ()=> setIsSpeaking(true)
 

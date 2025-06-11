@@ -1,6 +1,8 @@
 "use server"
 import {createSupabaseClient} from "@/lib/supabase";
 import {auth} from "@clerk/nextjs/server"
+import { revalidatePath } from "next/cache";
+
 
 export const createCompanion  = async(formData : CreateCompanion)=>{
 const {userId:author}=await auth();
@@ -56,4 +58,136 @@ export const addToSessionHistory = async (companionId: string) => {
     if(error) throw new Error(error.message);
 
     return data;
+}
+
+export const getRecentSessions = async(limit=10)=>{
+    const supabase = createSupabaseClient()
+    const {data,error} = await supabase.from("session_history")
+        .select(`companions:companion_id (*)`)
+        .order(`created_at`,{ascending:false})
+        .limit(limit)
+
+    if(error) throw new Error(error.message)
+
+    return data.map(({companions})=>companions)
+}
+
+
+
+export const getUserSessions = async(userId:string,limit=10)=>{
+    const supabase = createSupabaseClient()
+    const {data,error} = await supabase.from("session_history")
+        .select(`companions:companion_id (*)`)
+        .eq('user_id',userId)
+        .order(`created_at`,{ascending:false})
+        .limit(limit)
+
+    if(error) throw new Error(error.message)
+
+    return data.map(({companions})=>companions)
+}
+
+export const getUserCompanions = async(userId:string)=>{
+    const supabase = createSupabaseClient()
+    const {data,error} = await supabase.from("companions")
+        .select().eq('author',userId)
+    if(error) throw new Error(error.message);
+
+    return data;
+}
+// Bookmarks
+export const addBookmark = async (companionId: string, path: string) => {
+    const { userId } = await auth();
+    if (!userId) return;
+
+    const supabase = createSupabaseClient();
+
+    const { data, error } = await supabase.from("bookmarks").insert({
+        companion_id: companionId,
+        user_id: userId,
+    });
+
+    // Properly update the 'companions' table
+    await supabase
+        .from("companions")
+        .update({ bookmarked: true })
+        .eq("id", companionId);
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    revalidatePath(path);
+    return data;
+};
+
+
+export const removeBookmark = async (companionId: string, path: string) => {
+    const { userId } = await auth();
+    if (!userId) return;
+
+    const supabase = createSupabaseClient();
+
+    const { data, error } = await supabase
+        .from("bookmarks")
+        .delete()
+        .eq("companion_id", companionId)
+        .eq("user_id", userId);
+
+    // Properly update the 'companions' table
+    await supabase
+        .from("companions")
+        .update({ bookmarked: false })
+        .eq("id", companionId);
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    revalidatePath(path);
+    return data;
+};
+
+
+// It's almost the same as getUserCompanions, but it's for the bookmarked companions
+export const getBookmarkedCompanions = async (userId: string) => {
+    const supabase = createSupabaseClient();
+    const { data, error } = await supabase
+        .from("bookmarks")
+        .select(`companions:companion_id (*)`) // Notice the (*) to get all the companion data
+        .eq("user_id", userId);
+    if (error) {
+        throw new Error(error.message);
+    }
+    // We don't need the bookmarks data, so we return only the companions
+    return data.map(({ companions }) => companions);
+};
+
+export const newCompanionPermissions = async()=>{
+    const {userId , has} = await auth();
+    const supabase = createSupabaseClient()
+
+    let limit = 0;
+
+    if(has({plan: 'pro'})){
+        return true;
+    }
+    else if(has({plan:"3_companions_limit"})){
+        limit=3
+    }
+    else if(has({plan:"10_companions_limit"})){
+        limit=10
+    }
+    const {data,error} = await supabase.from("companions")
+        .select("id",{count:'exact'})
+        .eq("author",userId)
+
+    if(error) throw new Error(error.message)
+
+    const companionCount = data?.length
+    if(companionCount>limit){
+        return false;
+    }else{
+        return true
+    }
 }

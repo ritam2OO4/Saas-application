@@ -26,7 +26,7 @@ interface companionListProps {
     classNames?: string;
 }
 
-const CompanionList = ({title,companions,classNames}: companionListProps) => {
+const CompanionList = ({companions,classNames}: companionListProps) => {
     return (
         <article className={clsx('companion-list', classNames)}>
     <h2 className="font-bold text-3xl">
