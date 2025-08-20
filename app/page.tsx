@@ -4,7 +4,7 @@ import CompanionList from "@/components/CompanionsList";
 import Cta from "@/components/Cta";
 import {getAllCompanions, getRecentSessions} from "@/lib/actions/companion.actions";
 import {getSubjectColor} from "@/lib/utils";
-
+//whenever its broke go and restore the supabase server and then it will function properly
 
 const Page = async() => {
     const companions = await getAllCompanions({limit:3})
